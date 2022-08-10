@@ -1,0 +1,8 @@
+Django==3.2
+amqp==2.5.2
+django-cors-headers==3.5.0
+djangorestframework==3.12.1
+
+../campuscom-shared-models
+../marketplace-shared-lib
+../marketplace-shared-models
