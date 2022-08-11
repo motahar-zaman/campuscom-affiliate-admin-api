@@ -11,12 +11,13 @@ from rest_framework_simplejwt.views import (
 )
 
 from app.views import (PaymentSummaryView, CreateEnrollmentView, EnrollmentProductDetailsView, StoreViewSet,
-                       ProductViewSet)
+                       ProductViewSet, ContactViewSet)
 
 router = routers.DefaultRouter()
 
 router.register(r'stores', StoreViewSet, 'stores')
 router.register(r'products', ProductViewSet, 'products')
+router.register(r'contacts', ContactViewSet, 'contacts')
 
 
 urlpatterns = [

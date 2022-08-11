@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from shared_models.models import (Store, StoreConfiguration, Product)
+from shared_models.models import (Store, StoreConfiguration, Product, Profile)
 
 
 class GetStoreSerializer(serializers.ModelSerializer):
@@ -45,3 +45,10 @@ class ProductSerializer(serializers.ModelSerializer):
             'minimum_fee', 'active_status'
         )
         depth = 1
+
+
+class ProfileSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Profile
+        fields = ('id', 'first_name', 'last_name', 'date_of_birth', 'profile_picture_uri',
+                  'primary_email', 'primary_contact_number', 'terms_accepted')
