@@ -10,9 +10,11 @@ from rest_framework_simplejwt.views import (
     TokenRefreshView,
 )
 
-# from app.views import (PaymentSummaryView, CreateEnrollmentView, EnrollmentProductDetailsView)
+from app.views import (PaymentSummaryView, CreateEnrollmentView, EnrollmentProductDetailsView, StoreViewSet)
 
 router = routers.DefaultRouter()
+
+router.register(r'stores', StoreViewSet, 'stores')
 
 
 urlpatterns = [
@@ -22,7 +24,7 @@ urlpatterns = [
     path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
 
     # bulk enrollment by admin from admin panel
-    # path('payment-summary/', PaymentSummaryView.as_view(), name='payment_summary'),
-    # path('create-enrollment/', CreateEnrollmentView.as_view(), name='create_enrollment'),
-    # path('enrollment-product-details/', EnrollmentProductDetailsView.as_view(), name='enrollment_product_details'),
+    path('payment-summary/', PaymentSummaryView.as_view(), name='payment_summary'),
+    path('create-enrollment/', CreateEnrollmentView.as_view(), name='create_enrollment'),
+    path('enrollment-product-details/', EnrollmentProductDetailsView.as_view(), name='enrollment_product_details'),
 ]
