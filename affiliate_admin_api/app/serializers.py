@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from shared_models.models import (Store, StoreConfiguration)
+from shared_models.models import (Store, StoreConfiguration, Product)
 
 
 class GetStoreSerializer(serializers.ModelSerializer):
@@ -34,3 +34,14 @@ class CartStoreSerializer(serializers.ModelSerializer):
             data['configurations'].append(config)
 
         return data
+
+
+class ProductSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Product
+        fields = (
+            'id', 'store', 'external_id', 'product_type', 'title', 'content', 'image', 'limit_applicable',
+            'total_quantity', 'quantity_sold', 'available_quantity', 'tax_code', 'fee', 'currency_code', 'ref_id',
+            'minimum_fee', 'active_status'
+        )
+        depth = 1

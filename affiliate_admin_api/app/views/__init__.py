@@ -1,4 +1,5 @@
 from .store_view_set import StoreViewSet
+from .product_view_set import ProductViewSet
 
 from .payment_summary_view import PaymentSummaryView
 from .create_enrollment_view import CreateEnrollmentView

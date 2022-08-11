@@ -10,11 +10,13 @@ from rest_framework_simplejwt.views import (
     TokenRefreshView,
 )
 
-from app.views import (PaymentSummaryView, CreateEnrollmentView, EnrollmentProductDetailsView, StoreViewSet)
+from app.views import (PaymentSummaryView, CreateEnrollmentView, EnrollmentProductDetailsView, StoreViewSet,
+                       ProductViewSet)
 
 router = routers.DefaultRouter()
 
 router.register(r'stores', StoreViewSet, 'stores')
+router.register(r'products', ProductViewSet, 'products')
 
 
 urlpatterns = [
