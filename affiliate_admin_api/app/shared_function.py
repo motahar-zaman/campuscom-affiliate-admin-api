@@ -1,11 +1,8 @@
 from shared_models.models import (StoreFeaturedCareer, StorePaymentGateway, StoreIdentityProvider,
                                   Section, CourseProvider)
 from models.courseprovider.course_provider import CourseProvider as CourseProviderModel
-from models.courseprovider.instructor import Instructor as InstructorModel
 from models.occupation.occupation import Occupation as OccupationModel
-from models.course.course import Course as CourseModel
 from shared_models.models import CourseSharingContract
-# from app.serializers import (StoreIdentityProviderSerializer, SectionModelSerializer, StorePaymentGatewaySerializer, CourseProviderSerializer)
 from django.http import Http404
 from django.shortcuts import get_object_or_404
 from rest_framework import serializers
@@ -390,18 +387,13 @@ class PaginatorMixin(object):
         except EmptyPage:
             objects = paginator.page(paginator.num_pages)
 
-        data = {
-            'url': config('API_URL') + self.request.get_full_path(),
-            'date_time': datetime.now().replace(tzinfo=pytz.utc),
-            'page': {
+        data = {'url': config('API_URL') + self.request.get_full_path(),
+                'date_time': datetime.now().replace(tzinfo=pytz.utc), 'page': {
                 'previous_page': objects.has_previous() and objects.previous_page_number() or None,
                 'page': page,
                 'next_page': objects.has_next() and objects.next_page_number() or None,
                 'total': len(object_list),
                 'limit': limit
-            }
-        }
-
-        data['data'] = list(objects)
+            }, 'data': list(objects)}
 
         return data

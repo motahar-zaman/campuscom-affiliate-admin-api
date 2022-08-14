@@ -1,4 +1,4 @@
-from app.shared_function import PaginatorMixin, SharedMixin
+from campuslibs.shared_utils.shared_function import PaginatorMixin, SharedMixin
 
 from rest_framework.response import Response
 from rest_framework import viewsets
