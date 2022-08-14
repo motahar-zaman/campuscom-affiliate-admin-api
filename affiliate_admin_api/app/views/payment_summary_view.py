@@ -17,7 +17,7 @@ class PaymentSummaryView(APIView, SharedMixin, ViewDataMixin):
             return Response(
                 {
                     "error": message,
-                    "status_code": 404,
+                    "status_code": 400,
                 },
                 status= HTTP_400_BAD_REQUEST,
             )
