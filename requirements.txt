@@ -11,6 +11,8 @@ gunicorn==20.1.0
 ipdb==0.13.4
 inflection==0.5.1
 pika==1.1.0
+django-mongoengine==0.4.4
+django-rest-framework-mongoengine==3.4.1
 
 ../campuscom-shared-models
 ../marketplace-shared-lib
