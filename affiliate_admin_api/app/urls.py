@@ -9,7 +9,7 @@ from rest_framework_simplejwt.views import (
 )
 
 from app.views import (PaymentSummaryView, CreateEnrollmentView, EnrollmentProductDetailsView, StoreViewSet,
-                       ProductViewSet, ContactViewSet, CartViewSet)
+                       ProductViewSet, ContactViewSet, CartViewSet, ImportTaskViewSet)
 
 router = routers.DefaultRouter()
 
@@ -17,6 +17,7 @@ router.register(r'stores', StoreViewSet, 'stores')
 router.register(r'products', ProductViewSet, 'products')
 router.register(r'contacts', ContactViewSet, 'contacts')
 router.register(r'carts', CartViewSet, 'carts')
+router.register(r'import-tasks', ImportTaskViewSet, 'import_csv')
 
 
 urlpatterns = [
