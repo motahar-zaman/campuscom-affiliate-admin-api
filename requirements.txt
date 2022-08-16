@@ -13,6 +13,7 @@ inflection==0.5.1
 pika==1.1.0
 django-mongoengine==0.4.4
 django-rest-framework-mongoengine==3.4.1
+openpyxl==3.0.7
 
 ../campuscom-shared-models
 ../marketplace-shared-lib

@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from shared_models.models import (Store, StoreConfiguration, Product, Profile)
+from shared_models.models import (Store, StoreConfiguration, Product, Profile, ImportTask, CourseProvider)
 
 
 class GetStoreSerializer(serializers.ModelSerializer):
@@ -52,3 +52,38 @@ class ProfileSerializer(serializers.ModelSerializer):
         model = Profile
         fields = ('id', 'first_name', 'last_name', 'date_of_birth', 'profile_picture_uri',
                   'primary_email', 'primary_contact_number', 'terms_accepted')
+
+
+class ImportTaskSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ImportTask
+        fields = (
+            'id', 'ref_id', 'course_provider', 'store', 'import_type', 'filename', 'status', 'status_message',
+            'queue_processed'
+        )
+
+    def to_representation(self, instance):
+        data = super().to_representation(instance)
+        course_provider_id = instance.course_provider.id if instance.course_provider else None
+        try:
+            course_provider = CourseProvider.objects.get(pk=course_provider_id)
+        except CourseProvider.DoesNotExist:
+            pass
+        else:
+            data['course_provider'] = {'id': str(course_provider.id), 'name': course_provider.name}
+
+        try:
+            store = Store.objects.get(pk=instance.store.id if instance.store else None)
+        except Store.DoesNotExist:
+            pass
+        else:
+            data['store'] = {'id': str(store.id), 'name': store.name}
+        return data
+
+
+class CreateImportTaskSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ImportTask
+        fields = (
+            'id', 'course_provider', 'store', 'import_type', 'filename', 'status', 'status_message', 'queue_processed'
+        )
