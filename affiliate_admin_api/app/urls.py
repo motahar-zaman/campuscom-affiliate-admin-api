@@ -1,8 +1,6 @@
 from django.contrib import admin
 from django.urls import path, include
 from rest_framework import routers
-from django.conf import settings
-from shared_models.models import Course
 
 
 from rest_framework_simplejwt.views import (
@@ -11,13 +9,14 @@ from rest_framework_simplejwt.views import (
 )
 
 from app.views import (PaymentSummaryView, CreateEnrollmentView, EnrollmentProductDetailsView, StoreViewSet,
-                       ProductViewSet, ContactViewSet)
+                       ProductViewSet, ContactViewSet, CartViewSet)
 
 router = routers.DefaultRouter()
 
 router.register(r'stores', StoreViewSet, 'stores')
 router.register(r'products', ProductViewSet, 'products')
 router.register(r'contacts', ContactViewSet, 'contacts')
+router.register(r'carts', CartViewSet, 'carts')
 
 
 urlpatterns = [
