@@ -10,7 +10,8 @@ from rest_framework_simplejwt.views import (
 from app.views import MyTokenObtainPairView
 
 from app.views import (PaymentSummaryView, CreateEnrollmentView, EnrollmentProductDetailsView, StoreViewSet,
-                       ProductViewSet, ContactViewSet, CartViewSet, ImportTaskViewSet, CreateEnrollmentWithPurchaserView)
+                       ProductViewSet, ContactViewSet, CartViewSet, ImportTaskViewSet, CreateEnrollmentWithPurchaserView,
+                       health_check)
 
 router = routers.DefaultRouter()
 
@@ -23,6 +24,7 @@ router.register(r'import-tasks', ImportTaskViewSet, 'import_csv')
 
 urlpatterns = [
     path('', include(router.urls)),
+    path('check/', health_check),
     path('admin/', admin.site.urls),
     path('api/token/', MyTokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
