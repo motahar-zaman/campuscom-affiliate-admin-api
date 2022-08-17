@@ -9,3 +9,5 @@ from .enrollment_product_details_view import EnrollmentProductDetailsView
 
 from .cart_view_set import CartViewSet
 from .import_task_view_set import ImportTaskViewSet
+
+from .token_generator import MyTokenObtainPairView
