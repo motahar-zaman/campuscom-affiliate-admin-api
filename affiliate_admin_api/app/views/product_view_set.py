@@ -32,3 +32,8 @@ class ProductViewSet(viewsets.ModelViewSet, PaginatorMixin, ViewDataMixin):
         serializer = self.serializer_class(queryset, many=True)
 
         return Response(self.paginate(serializer.data), status=HTTP_200_OK)
+
+    def retrieve(self, request, *args, **kwargs):
+        product = self.get_object()
+        product_serializer = self.get_serializer(product)
+        return Response(self.object_decorator(product_serializer.data))
