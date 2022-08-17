@@ -3,7 +3,7 @@ amqp==2.5.2
 django-cors-headers==3.5.0
 djangorestframework==3.12.1
 python-decouple==3.3
-djangorestframework-simplejwt==4.5.0
+djangorestframework-simplejwt
 django-scopes==1.2.0
 psycopg2-binary==2.8.5
 Pillow==7.2.0
