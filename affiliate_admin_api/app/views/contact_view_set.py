@@ -30,7 +30,11 @@ class ContactViewSet(viewsets.ModelViewSet, PaginatorMixin, ViewDataMixin):
         return self.model.objects.filter(**fields.dict())
 
     def list(self, request, *args, **kwargs):
-        with scopes_disabled():
-            queryset = self.get_queryset()
-        import_task_serializer = self.get_serializer(queryset, many=True)
-        return Response(self.paginate(import_task_serializer.data), status=HTTP_200_OK)
+        queryset = self.get_queryset()
+        contact_serializer = self.get_serializer(queryset, many=True)
+        return Response(self.paginate(contact_serializer.data), status=HTTP_200_OK)
+
+    def retrieve(self, request, *args, **kwargs):
+        contact = self.get_object()
+        contact_serializer = self.get_serializer(contact)
+        return Response(self.object_decorator(contact_serializer.data))
