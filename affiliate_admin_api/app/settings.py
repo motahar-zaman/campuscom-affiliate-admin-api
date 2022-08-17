@@ -29,7 +29,7 @@ SECRET_KEY = 'django-insecure-(8knc_j=2japj$3cp($*tf7p-tb#j!ro^+q4l5d3orxhrf#ng)
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ["*"]
 
 PAYMENT_LIB_DIR = os.path.join(BASE_DIR, 'payments')
 
