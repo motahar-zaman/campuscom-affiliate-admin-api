@@ -1,6 +1,18 @@
 from rest_framework import serializers
 
-from shared_models.models import (Store, StoreConfiguration, Product, Profile, ImportTask, CourseProvider)
+from shared_models.models import (Store, StoreConfiguration, Product, Profile, ImportTask, CourseProvider, Permission, CustomRole)
+
+
+class PermissionSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Permission
+        fields = ('id', 'name', 'action', 'operation', 'group')
+
+
+class CustomRoleSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = CustomRole
+        fields = ('id', 'name', 'permissions', 'menu_permissions')
 
 
 class GetStoreSerializer(serializers.ModelSerializer):
