@@ -21,6 +21,6 @@ gunicorn --workers=3 \
     --chdir=/opt/app/affiliate_admin_api \
     -b :5000 \
     --log-level=info \
-    affiliate_admin_api.wsgi:application
+    app.wsgi:application
 
 cd -
