@@ -12,13 +12,12 @@ class PaymentSummaryView(APIView, SharedMixin, ViewDataMixin):
 
     def post(self, request, *args, **kwargs):
         summary = Common()
-        status, message, data = summary.payment_summary(request)
+        status, message, data, status_code = summary.payment_summary(request)
         if not status:
             return Response(
                 {
-                    "error": message,
-                    "status_code": 400,
+                    "error": message
                 },
-                status= HTTP_400_BAD_REQUEST,
+                status= status_code,
             )
-        return Response(self.object_decorator(data), status=HTTP_200_OK)
+        return Response(self.object_decorator(data), status=status_code)
