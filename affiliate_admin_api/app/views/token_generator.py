@@ -28,7 +28,7 @@ class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
 
         # validate app_permissions
         custom_roles = self.user.custom_roles
-        if CustomRole.objects.filter(pk__in=custom_roles, app_permissions__contains=['ADMIN']).exists():
+        if CustomRole.objects.filter(pk__in=custom_roles, app_permissions__contains=['AFFILIATE']).exists():
             pass
         else:
             raise exceptions.AuthenticationFailed(
