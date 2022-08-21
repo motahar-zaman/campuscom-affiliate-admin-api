@@ -1,10 +1,9 @@
 from rest_framework.response import Response
 from rest_framework import viewsets
 from campuslibs.shared_utils.data_decorators import ViewDataMixin
-from campuslibs.shared_utils.shared_function import PaginatorMixin
+from campuslibs.shared_utils.shared_function import PaginatorMixin, SharedMixin
 from shared_models.models import Profile
 from app.serializers import ProfileSerializer
-from django_scopes import scopes_disabled
 
 from rest_framework.status import (
     HTTP_200_OK,
@@ -13,7 +12,7 @@ from rest_framework.status import (
 )
 
 
-class ContactViewSet(viewsets.ModelViewSet, PaginatorMixin, ViewDataMixin):
+class ContactViewSet(viewsets.ModelViewSet, PaginatorMixin, ViewDataMixin, SharedMixin):
     model = Profile
     serializer_class = ProfileSerializer
     http_method_names = ["get", "head"]
@@ -27,7 +26,12 @@ class ContactViewSet(viewsets.ModelViewSet, PaginatorMixin, ViewDataMixin):
         except KeyError:
             pass
 
-        return self.model.objects.filter(**fields.dict())
+        queryset = self.model.objects.filter(**fields.dict())
+        scopes = self.get_user_scope()
+        if 'store' in scopes and scopes['store']:
+            queryset = queryset.filter(profile_stores__store__in=scopes['store'])
+
+        return queryset
 
     def list(self, request, *args, **kwargs):
         queryset = self.get_queryset()

@@ -14,6 +14,7 @@ pika==1.1.0
 django-mongoengine==0.4.4
 django-rest-framework-mongoengine==3.4.1
 openpyxl==3.0.7
+django-storages==1.10.1
 
 ../campuscom-shared-models
 ../marketplace-shared-lib
