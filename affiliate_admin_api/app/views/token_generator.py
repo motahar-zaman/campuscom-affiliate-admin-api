@@ -26,6 +26,16 @@ class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
     def validate(self, attrs):
         data = super().validate(attrs)
 
+        # validate app_permissions
+        custom_roles = self.user.custom_roles
+        if CustomRole.objects.filter(pk__in=custom_roles, app_permissions__contains=['ADMIN']).exists():
+            pass
+        else:
+            raise exceptions.AuthenticationFailed(
+                "User don't have permission on this application",
+                'app_permission',
+            )
+
         refresh = self.get_token(self.user)
 
         data['refresh'] = str(refresh)
