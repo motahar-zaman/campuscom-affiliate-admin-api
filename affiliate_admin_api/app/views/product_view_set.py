@@ -1,5 +1,5 @@
 from app.serializers import ProductSerializer
-from campuslibs.shared_utils.shared_function import PaginatorMixin
+from campuslibs.shared_utils.shared_function import PaginatorMixin, SharedMixin
 from rest_framework import viewsets
 from rest_framework.response import Response
 from shared_models.models import Product, Store, RelatedProduct, DiscountRule, DiscountProgram
@@ -12,7 +12,7 @@ from rest_framework.status import (
 )
 
 
-class ProductViewSet(viewsets.ModelViewSet, PaginatorMixin, ViewDataMixin):
+class ProductViewSet(viewsets.ModelViewSet, PaginatorMixin, ViewDataMixin, SharedMixin):
     model = Product
     serializer_class = ProductSerializer
     http_method_names = ["get", "head"]
@@ -25,7 +25,12 @@ class ProductViewSet(viewsets.ModelViewSet, PaginatorMixin, ViewDataMixin):
         except KeyError:
             pass
 
-        return self.model.objects.filter(**fields.dict())
+        queryset = self.model.objects.filter(**fields.dict())
+        scopes = self.get_user_scope()
+        if 'store' in scopes and scopes['store']:
+            queryset = queryset.filter(store__id__in=scopes['store'])
+
+        return queryset
 
     def list(self, request, *args, **kwargs):
         queryset = self.get_queryset()
