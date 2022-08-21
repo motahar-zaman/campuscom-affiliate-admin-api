@@ -1,7 +1,8 @@
 from rest_framework import serializers
 
 from shared_models.models import (Store, StoreConfiguration, Product, Profile, ImportTask, CourseProvider, Permission,
-                                  CustomRole, CourseEnrollment, Course, Section, CartItem)
+                                  CustomRole, CourseEnrollment, Course, Section, CartItem, ProfileCommunicationMedium,
+                                  ProfileLink, IdentityProvider, ProfilePreference)
 
 from django_scopes import scopes_disabled
 
@@ -153,3 +154,44 @@ class GetStoreNameIdSerializer(serializers.ModelSerializer):
     class Meta:
         model = Store
         fields = ('id', 'name')
+
+
+class ProfileCommunicationMediumSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ProfileCommunicationMedium
+        fields = ('id', 'medium_type', 'medium_value')
+
+
+class ProfileLinkSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ProfileLink
+        fields = ('id', 'identity_provider', 'provider_profile_identity')
+
+    def to_representation(self, instance):
+        data = super().to_representation(instance)
+        data['identity_provider'] = ProfileIdentityProviderSerializer(
+            IdentityProvider.objects.get(id=data['identity_provider'])).data
+        data['name'] = data['identity_provider']['name']
+        del data['identity_provider']
+        return data
+
+
+class ProfileIdentityProviderSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = IdentityProvider
+        fields = ('id', 'name', 'slug')
+
+
+class ProfilePreferenceSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ProfilePreference
+        fields = ('id', 'preference_type', 'preference_value')
+
+
+class ProfileEnrollmentSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = CourseEnrollment
+        fields = (
+            'id', 'profile', 'course', 'section', 'enrollment_time', 'application_time', 'status', 'expiry_date',\
+            'ref_id'
+        )
