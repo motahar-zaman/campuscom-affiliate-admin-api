@@ -1,6 +1,9 @@
 from rest_framework import serializers
 
-from shared_models.models import (Store, StoreConfiguration, Product, Profile, ImportTask, CourseProvider, Permission, CustomRole)
+from shared_models.models import (Store, StoreConfiguration, Product, Profile, ImportTask, CourseProvider, Permission,
+                                  CustomRole, CourseEnrollment, Course, Section, CartItem)
+
+from django_scopes import scopes_disabled
 
 
 class PermissionSerializer(serializers.ModelSerializer):
@@ -99,3 +102,54 @@ class CreateImportTaskSerializer(serializers.ModelSerializer):
         fields = (
             'id', 'course_provider', 'store', 'import_type', 'filename', 'status', 'status_message', 'queue_processed'
         )
+
+
+class EnrollmentSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = CourseEnrollment
+        fields = ('id', 'profile', 'course', 'section', 'enrollment_time', 'application_time',
+                  'status', 'store', 'cart_item', 'expiry_date', 'ref_id')
+
+    def to_representation(self, instance):
+        data = super().to_representation(instance)
+        data['profile'] = ProfileSerializer(Profile.objects.get(id=data['profile'])).data
+        with scopes_disabled():
+            data['course'] = GetCourseDetailSerializer(Course.objects.get(id=data['course'])).data
+            try:
+                data['section'] = GetSectionSerializer(Section.objects.get(id=data['section'])).data
+            except Section.DoesNotExist:
+                data['section'] = None
+            try:
+                data['product_id'] = str(CartItem.objects.get(id=data['cart_item']).product.id)
+            except CartItem.DoesNotExist:
+                data['product_id'] = None
+
+        data['store'] = GetStoreNameIdSerializer(Store.objects.get(id=data['store'])).data
+
+        return data
+
+
+class GetCourseDetailSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Course
+        fields = ('id', 'title')
+
+
+class GetSectionSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Section
+        fields = ('id', 'course', 'name', 'fee', 'seat_capacity', 'available_seat',
+                  'execution_mode', 'registration_deadline', 'content_db_reference', 'is_active', 'active_status')
+
+    def to_representation(self, instance):
+        data = super().to_representation(instance)
+        with scopes_disabled():
+            data['course'] = GetCourseDetailSerializer(
+                Course.objects.get(id=data['course'])).data
+        return data
+
+
+class GetStoreNameIdSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Store
+        fields = ('id', 'name')

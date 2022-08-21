@@ -11,7 +11,7 @@ from app.views import MyTokenObtainPairView
 
 from app.views import (PaymentSummaryView, CreateEnrollmentView, EnrollmentProductDetailsView, StoreViewSet,
                        ProductViewSet, ContactViewSet, CartViewSet, ImportTaskViewSet, CreateEnrollmentWithPurchaserView,
-                       health_check)
+                       health_check, CourseEnrollmentViewSet)
 
 router = routers.DefaultRouter()
 
@@ -20,6 +20,8 @@ router.register(r'products', ProductViewSet, 'products')
 router.register(r'contacts', ContactViewSet, 'contacts')
 router.register(r'carts', CartViewSet, 'carts')
 router.register(r'import-tasks', ImportTaskViewSet, 'import_csv')
+
+router.register(r'course-enrollments', CourseEnrollmentViewSet, 'enrollments')
 
 
 urlpatterns = [
