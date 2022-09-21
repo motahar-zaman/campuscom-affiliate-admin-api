@@ -19,6 +19,7 @@ class ProductViewSet(viewsets.ModelViewSet, PaginatorMixin, ViewDataMixin, Share
 
     def get_queryset(self):
         fields = self.request.GET.copy()
+        fields["active_status"] = True
         try:
             fields.pop("limit")
             fields.pop("page")
