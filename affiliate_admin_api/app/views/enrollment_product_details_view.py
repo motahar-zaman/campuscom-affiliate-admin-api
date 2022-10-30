@@ -30,14 +30,6 @@ class EnrollmentProductDetailsView(APIView, SharedMixin, ViewDataMixin):
             products = Product.objects.filter(id__in=product_ids, active_status=True)
         except Exception as e:
             pass
-        if not products:
-            return Response(
-                {
-                    "error": {"message": "Products does not exists"},
-                    "status_code": 404,
-                },
-                status=HTTP_404_NOT_FOUND,
-            )
 
         common = Common()
         data = common.enrollment_products_extra_info(store, products)
