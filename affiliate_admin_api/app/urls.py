@@ -3,15 +3,12 @@ from django.urls import path, include
 from rest_framework import routers
 
 
-from rest_framework_simplejwt.views import (
-    TokenRefreshView,
-)
-
+from rest_framework_simplejwt.views import TokenRefreshView
 from app.views import MyTokenObtainPairView
 
 from app.views import (PaymentSummaryView, CreateEnrollmentView, EnrollmentProductDetailsView, StoreViewSet,
                        ProductViewSet, ContactViewSet, CartViewSet, ImportTaskViewSet, CreateEnrollmentWithPurchaserView,
-                       health_check, CourseEnrollmentViewSet, StudentViewSet)
+                       health_check, CourseEnrollmentViewSet, StudentViewSet, RemoveEnrollmentView, SwapEnrollmentView)
 
 router = routers.DefaultRouter()
 
@@ -38,4 +35,7 @@ urlpatterns = [
     path('create-enrollment/', CreateEnrollmentView.as_view(), name='create_enrollment'),
     path('create-enrollment-with-purchaser/', CreateEnrollmentWithPurchaserView.as_view(), name='create_enrollment_with_purchaser'),
     path('enrollment-product-details/', EnrollmentProductDetailsView.as_view(), name='enrollment_product_details'),
+
+    path(r'remove-enrollment/', RemoveEnrollmentView.as_view(), name='remove_enrollment'),
+    path(r'swap-enrollment/', SwapEnrollmentView.as_view(), name='swap_enrollment'),
 ]

@@ -16,3 +16,5 @@ from .funcs import health_check
 
 from .enrollment_view_set import CourseEnrollmentViewSet
 from .student_view_set import StudentViewSet
+from .remove_enrollment_view import RemoveEnrollmentView
+from .swap_enrollment_view import SwapEnrollmentView

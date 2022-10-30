@@ -14,19 +14,27 @@ class CreateEnrollmentView(APIView, SharedMixin, ViewDataMixin):
     http_method_names = ["head", "post"]
 
     def post(self, request, *args, **kwargs):
-        status, message, data = self.validate_and_format_payload(request)
+        enroll = Common()
+        status, message, data = enroll.validate_and_format_enrollment_payload(request)
         if not status:
             return Response({'message': message}, status=HTTP_400_BAD_REQUEST)
 
-        enroll = Common()
+        data['admin'] = True
         status, message, processed_data = enroll.create_enrollment(data)
-        discount = processed_data.pop('data')
-        processed_data.pop('date_time')
-        processed_data.update(discount)
+
         if not status:
-            return Response({'message': message}, status=HTTP_400_BAD_REQUEST)
+            product = {
+                'id': processed_data.id,
+                'title': processed_data.title
+            }
+            return Response({'message': message, 'product': product}, status=HTTP_400_BAD_REQUEST)
+
         else:
-            return Response(self.object_decorator(processed_data), status=HTTP_200_OK)
+            discount = processed_data.pop('data')
+            processed_data.pop('date_time')
+            processed_data.update(discount)
+
+        return Response(self.object_decorator(processed_data), status=HTTP_200_OK)
 
     def validate_and_format_payload(self, request):
         data = {}
