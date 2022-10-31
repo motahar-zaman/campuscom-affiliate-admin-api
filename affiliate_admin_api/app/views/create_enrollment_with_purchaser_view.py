@@ -20,12 +20,12 @@ class CreateEnrollmentWithPurchaserView(APIView, SharedMixin, ViewDataMixin):
 
         enroll = Common()
         status, message, processed_data = enroll.create_enrollment(data)
-        discount = processed_data.pop('data')
-        processed_data.pop('date_time')
-        processed_data.update(discount)
         if not status:
             return Response({'message': message}, status=HTTP_400_BAD_REQUEST)
         else:
+            discount = processed_data.pop('data')
+            processed_data.pop('date_time')
+            processed_data.update(discount)
             return Response(self.object_decorator(processed_data), status=HTTP_200_OK)
 
     def validate_and_format_payload(self, request):
