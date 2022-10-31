@@ -60,6 +60,7 @@ class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
         data['permissions'] = permission_serializer.data
         data['menu_permissions'] = list(set(menu_permissions))
         data['is_superuser'] = self.user.is_superuser
+        data['preferences'] = self.user.preference
 
         if self.user.db_context:
             context = {}
