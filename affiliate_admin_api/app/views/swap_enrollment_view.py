@@ -1,6 +1,6 @@
 from rest_framework.status import HTTP_200_OK, HTTP_400_BAD_REQUEST
 from app.shared_function import PaginatorMixin, SharedMixin
-from shared_utils.data_decorators import ViewDataMixin
+from campuslibs.shared_utils.data_decorators import ViewDataMixin
 from rest_framework.views import APIView
 from rest_framework.response import Response
 
