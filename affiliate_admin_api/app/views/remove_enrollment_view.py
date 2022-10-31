@@ -1,7 +1,7 @@
 from rest_framework.views import APIView
 from rest_framework.response import Response
 
-from shared_utils.data_decorators import ViewDataMixin
+from campuslibs.shared_utils.data_decorators import ViewDataMixin
 
 from rest_framework.status import HTTP_200_OK
 from campuslibs.enrollment.common import Common
