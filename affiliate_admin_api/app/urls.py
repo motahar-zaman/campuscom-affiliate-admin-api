@@ -10,7 +10,8 @@ from app.views import (PaymentSummaryView, CreateEnrollmentView, EnrollmentProdu
                        ProductViewSet, ContactViewSet, CartViewSet, ImportTaskViewSet, CreateEnrollmentWithPurchaserView,
                        health_check, CourseEnrollmentViewSet, StudentViewSet, RemoveEnrollmentView, SwapEnrollmentView,
                        SeatBlockReservationViewSet, SeatReservationViewSet, SeatReservationHistoryView,
-                       SeatReservationTokenGenerationView, RemoveSeatRegistrationView, SwapSeatRegistrationView)
+                       SeatReservationTokenGenerationView, RemoveSeatRegistrationView, SwapSeatRegistrationView,
+                       StoreCompanyViewSet)
 
 router = routers.DefaultRouter()
 
@@ -27,6 +28,8 @@ router.register(r'students', StudentViewSet, 'students')
 # seat reservation
 router.register(r'seat-block-reservations', SeatBlockReservationViewSet, 'seat_block_reservations')
 router.register(r'seat-reservations', SeatReservationViewSet, 'seat_reservations')
+
+router.register(r'store-companies', StoreCompanyViewSet, 'store_companies')
 
 
 urlpatterns = [
