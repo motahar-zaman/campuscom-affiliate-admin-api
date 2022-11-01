@@ -25,3 +25,5 @@ from .seat_reservation_token_generation_view import SeatReservationTokenGenerati
 from .remove_seat_registration_view import RemoveSeatRegistrationView
 from .swap_seat_registration_view import SwapSeatRegistrationView
 from .seat_reservation_history_view import SeatReservationHistoryView
+
+from .store_company_view_set import StoreCompanyViewSet

@@ -327,3 +327,23 @@ class SeatReservationHistorySerializer(serializers.ModelSerializer):
             }
 
         return data
+
+
+class StoreCompanySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = StoreCompany
+        fields = ('id', 'store', 'company_name')
+
+    def to_representation(self, instance):
+        data = super().to_representation(instance)
+
+        data['store'] = None
+
+        try:
+            store_info = Store.objects.get(pk=instance.store_id)
+        except Store.DoesNotExist:
+            pass
+        else:
+            data['store'] = {'id': str(store_info.id), 'name': store_info.name}
+
+        return data
