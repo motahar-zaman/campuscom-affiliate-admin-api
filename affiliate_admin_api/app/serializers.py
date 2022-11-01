@@ -2,7 +2,8 @@ from rest_framework import serializers
 
 from shared_models.models import (Store, StoreConfiguration, Product, Profile, ImportTask, CourseProvider, Permission,
                                   CustomRole, CourseEnrollment, Course, Section, CartItem, ProfileCommunicationMedium,
-                                  ProfileLink, IdentityProvider, ProfilePreference)
+                                  ProfileLink, IdentityProvider, ProfilePreference, SeatBlockReservation,
+                                  SeatReservation, StoreCompany, SeatReservationHistory)
 
 from django_scopes import scopes_disabled
 
@@ -195,3 +196,134 @@ class ProfileEnrollmentSerializer(serializers.ModelSerializer):
             'id', 'profile', 'course', 'section', 'enrollment_time', 'application_time', 'status', 'expiry_date',\
             'ref_id'
         )
+
+class SeatBlockReservationSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = SeatBlockReservation
+        fields = ('id', 'cart_item', 'company', 'number_of_seats', 'reservation_date', 'expiration_date', 'token_type',
+                  'reservation_ref')
+
+    def to_representation(self, instance):
+        data = super().to_representation(instance)
+
+        seat_reservation = SeatReservation.objects.filter(reservation=instance.id)
+        if data['token_type'] == 'group':
+            data['token'] = seat_reservation.first().token
+        data['registered_students'] = seat_reservation.filter(profile__isnull=False).count()
+        data['available_seats'] = data['number_of_seats'] - data['registered_students']
+
+        try:
+            company = StoreCompany.objects.get(pk=data['company'])
+        except StoreCompany.DoesNotExist:
+            pass
+        else:
+            data['company'] = {
+                'id': str(company.id),
+                'name': company.company_name,
+            }
+        with scopes_disabled():
+            try:
+                cart_item = CartItem.objects.get(pk=data['cart_item'])
+            except CartItem.DoesNotExist:
+                pass
+            else:
+                data['cart'] = {
+                    'id': str(cart_item.cart.id),
+                    'order_ref': cart_item.cart.order_ref,
+                }
+                data['product'] = {
+                    'id': str(cart_item.product.id),
+                    'name': cart_item.product.title
+                }
+                data['cart_item'] = {
+                    'id': str(cart_item.id),
+                    'quantity': cart_item.quantity,
+                    'unit_price': cart_item.unit_price,
+                    'extended_amount': cart_item.extended_amount,
+                    'discount_amount': cart_item.discount_amount,
+                    'sales_tax': cart_item.sales_tax,
+                    'total_amount': cart_item.total_amount,
+                    'unit': cart_item.unit
+                }
+                data['store'] = {
+                    'id': str(cart_item.cart.store.id),
+                    'url_slug': cart_item.cart.store.url_slug,
+                    'name': cart_item.cart.store.name
+                }
+                data['purchaser'] = {
+                    'id': str(cart_item.cart.profile.id),
+                    'name': cart_item.cart.profile.first_name + ' ' + cart_item.cart.profile.last_name
+                }
+        return data
+
+
+class SeatReservationSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = SeatReservation
+        fields = ('id', 'reservation', 'profile', 'token')
+
+    def to_representation(self, instance):
+        data = super().to_representation(instance)
+        try:
+            reservation = SeatBlockReservation.objects.get(pk=data['reservation'])
+        except SeatBlockReservation.DoesNotExist:
+            pass
+        else:
+            data['reservation'] = {
+                'id': str(reservation.id),
+                'reservation_ref': reservation.reservation_ref,
+            }
+        # with scopes_disabled():
+        try:
+            profile = Profile.objects.get(pk=data['profile'])
+        except Profile.DoesNotExist:
+            pass
+        else:
+            data['profile'] = {
+                'id': str(profile.id),
+                'email': profile.primary_email,
+                'name': profile.first_name + ' ' + profile.last_name
+            }
+
+        try:
+            enrollment = CourseEnrollment.objects.get(cart_item__seat=data['id'], active_status=True)
+        except CourseEnrollment.DoesNotExist:
+            pass
+        else:
+            data['enrollment'] = {
+                'id': str(enrollment.id),
+                'ref_id': enrollment.ref_id
+            }
+
+        return data
+
+
+class SeatReservationHistorySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = SeatReservationHistory
+        fields = ('id', 'seat', 'profile', 'action', 'time')
+
+    def to_representation(self, instance):
+        data = super().to_representation(instance)
+        try:
+            seat = SeatReservation.objects.get(pk=data['seat'])
+        except SeatReservation.DoesNotExist:
+            pass
+        else:
+            data['seat'] = {
+                'id': str(seat.id),
+                'token': seat.token,
+            }
+        try:
+            profile = Profile.objects.get(pk=data['profile'])
+        except Profile.DoesNotExist:
+            pass
+        else:
+            data['profile'] = {
+                'id': str(profile.id),
+                'first_name': profile.first_name,
+                'last_name': profile.last_name,
+                'primary_email': profile.primary_email,
+            }
+
+        return data

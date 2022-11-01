@@ -18,3 +18,10 @@ from .enrollment_view_set import CourseEnrollmentViewSet
 from .student_view_set import StudentViewSet
 from .remove_enrollment_view import RemoveEnrollmentView
 from .swap_enrollment_view import SwapEnrollmentView
+
+from .seat_block_reservation_view_set import SeatBlockReservationViewSet
+from .seat_reservation_view_set import SeatReservationViewSet
+from .seat_reservation_token_generation_view import SeatReservationTokenGenerationView
+from .remove_seat_registration_view import RemoveSeatRegistrationView
+from .swap_seat_registration_view import SwapSeatRegistrationView
+from .seat_reservation_history_view import SeatReservationHistoryView
