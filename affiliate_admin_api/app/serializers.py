@@ -6,6 +6,7 @@ from shared_models.models import (Store, StoreConfiguration, Product, Profile, I
                                   SeatReservation, StoreCompany, SeatReservationHistory)
 
 from django_scopes import scopes_disabled
+from django.utils import timezone
 
 
 class PermissionSerializer(serializers.ModelSerializer):
@@ -68,7 +69,7 @@ class ProductSerializer(serializers.ModelSerializer):
 
         data['store']['domain'] = ''
         if StoreDomain.objects.filter(store__id=data['store']['id'], active_status=True, expiry_at__lte=timezone.now()).exists():
-            data['store']['domain'] = StoreDomain.filter(store__id=data['store']['id'], active_status=True, expiry_at__lte=timezone.now()).latest().domain
+            data['store']['domain'] = StoreDomain.objects.filter(store__id=data['store']['id'], active_status=True, expiry_at__lte=timezone.now()).latest('created_at').domain
 
         return data
 
@@ -239,7 +240,7 @@ class SeatBlockReservationSerializer(serializers.ModelSerializer):
                 store_domain = ''
 
                 if cart_item.cart.store.stores.filter(active_status=True, expiry_at__lte=timezone.now()).exists():
-                    store_domain = cart_item.cart.store.stores.filter(active_status=True, expiry_at__lte=timezone.now()).latest().domain
+                    store_domain = cart_item.cart.store.stores.filter(active_status=True, expiry_at__lte=timezone.now()).latest('created_at').domain
 
                 data['cart'] = {
                     'id': str(cart_item.cart.id),
