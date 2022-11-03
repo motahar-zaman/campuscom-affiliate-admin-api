@@ -63,6 +63,15 @@ class ProductSerializer(serializers.ModelSerializer):
         )
         depth = 1
 
+    def to_representation(self, instance):
+        data = super().to_representation(instance)
+
+        data['store']['domain'] = ''
+        if StoreDomain.objects.filter(store__id=data['store']['id'], active_status=True, expiry_at__lte=timezone.now()).exists():
+            data['store']['domain'] = StoreDomain.filter(store__id=data['store']['id'], active_status=True, expiry_at__lte=timezone.now()).latest().domain
+
+        return data
+
 
 class ProfileSerializer(serializers.ModelSerializer):
     class Meta:
@@ -227,6 +236,11 @@ class SeatBlockReservationSerializer(serializers.ModelSerializer):
             except CartItem.DoesNotExist:
                 pass
             else:
+                store_domain = ''
+
+                if cart_item.cart.store.stores.filter(active_status=True, expiry_at__lte=timezone.now()).exists():
+                    store_domain = cart_item.cart.store.stores.filter(active_status=True, expiry_at__lte=timezone.now()).latest().domain
+
                 data['cart'] = {
                     'id': str(cart_item.cart.id),
                     'order_ref': cart_item.cart.order_ref,
@@ -248,7 +262,8 @@ class SeatBlockReservationSerializer(serializers.ModelSerializer):
                 data['store'] = {
                     'id': str(cart_item.cart.store.id),
                     'url_slug': cart_item.cart.store.url_slug,
-                    'name': cart_item.cart.store.name
+                    'name': cart_item.cart.store.name,
+                    'domain': store_domain
                 }
                 data['purchaser'] = {
                     'id': str(cart_item.cart.profile.id),
