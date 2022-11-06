@@ -67,10 +67,9 @@ class ProductSerializer(serializers.ModelSerializer):
     def to_representation(self, instance):
         data = super().to_representation(instance)
 
-        data['store']['domain'] = ''
-        if StoreDomain.objects.filter(store__id=data['store']['id'], active_status=True, expiry_at__lte=timezone.now()).exists():
-            data['store']['domain'] = StoreDomain.objects.filter(store__id=data['store']['id'], active_status=True, expiry_at__lte=timezone.now()).latest('created_at').domain
-
+        store_domain = StoreDomain.objects.filter(store__id=data['store']['id'], active_status=True, expiry_at__gte=timezone.now())
+        if store_domain.exists():
+            data['store']['domain'] = store_domain.latest('created_at').domain
         return data
 
 
@@ -238,9 +237,9 @@ class SeatBlockReservationSerializer(serializers.ModelSerializer):
                 pass
             else:
                 store_domain = ''
-
-                if cart_item.cart.store.stores.filter(active_status=True, expiry_at__lte=timezone.now()).exists():
-                    store_domain = cart_item.cart.store.stores.filter(active_status=True, expiry_at__lte=timezone.now()).latest('created_at').domain
+                domain = cart_item.cart.store.stores.filter(active_status=True, expiry_at__gte=timezone.now())
+                if domain.exists():
+                    store_domain = domain.latest('created_at').domain
 
                 data['cart'] = {
                     'id': str(cart_item.cart.id),
