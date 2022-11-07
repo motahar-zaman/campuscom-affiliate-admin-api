@@ -1,0 +1,136 @@
+from rest_framework.status import HTTP_200_OK, HTTP_400_BAD_REQUEST
+from campuslibs.shared_utils.data_decorators import ViewDataMixin
+from campuslibs.shared_utils.shared_function import PaginatorMixin, SharedMixin
+from rest_framework.views import APIView
+from rest_framework.response import Response
+
+from shared_models.models import Store, Profile, ProfileStore
+import json
+
+from campuslibs.enrollment.common import Common
+
+
+class CreateBulkEnrollmentView(APIView, SharedMixin, ViewDataMixin):
+    http_method_names = ["head", "post"]
+
+    def post(self, request, *args, **kwargs):
+        enroll = Common()
+
+        # special cases: (why not use shared_lib's common method)
+        # 1. students will be mixed (profile id and first_name, last_name, email)
+        # 2. organization data will not provide as purchasing for
+        status, message, data = enroll.validate_and_format_enrollment_payload(request)
+        if not status:
+            return Response({'message': message}, status=HTTP_400_BAD_REQUEST)
+
+        data['admin'] = True
+        status, message, processed_data = enroll.create_enrollment(data)
+
+        if not status:
+            product = {
+                'id': processed_data.id,
+                'title': processed_data.title
+            }
+            return Response({'message': message, 'product': product}, status=HTTP_400_BAD_REQUEST)
+
+        else:
+            discount = processed_data.pop('data')
+            processed_data.pop('date_time')
+            processed_data.update(discount)
+
+        return Response(self.object_decorator(processed_data), status=HTTP_200_OK)
+
+    def validate_and_format_enrollment_payload(self, request):
+        data = {}
+
+        files = request.FILES.getlist('files', None)
+        token_id = request.data.get('tid', None)
+        zip_code = request.data.get('zip_code', None)
+        country = request.data.get('country', None)
+        nonce = request.data.get('nonce', None)
+        store_id = request.data.get('store', None)
+        payment_ref = request.data.get('payment_ref', None)
+        payment_note = request.data.get('payment_note', None)
+        store_payment_gateway_id = request.data.get('store_payment_gateway_id', None)
+        seat_reservation_id = request.data.get('seat_reservation', None)
+
+        try:
+            store = Store.objects.get(pk=store_id)
+        except Store.DoesNotExist:
+            return False, 'Store does not exist', data
+
+        purchaser_info = {
+            'first_name': request.user.first_name,
+            'last_name': request.user.last_name,
+            'primary_email': request.user.email
+        }
+
+        student_details = request.data.get('student_details', [])
+        if student_details:
+            student_details = json.loads(student_details)
+            for idx, student in enumerate(student_details):
+                profile_id = student.get('profile_id', None)
+                primary_email = student.get('email', None)
+                if profile_id:
+                    try:
+                        profile = Profile.objects.get(pk=profile_id)
+                    except Profile.DoesNotExist:
+                        return False, 'Student with this profile id not found', data
+                    else:
+                        student_details[idx]['first_name'] = profile.first_name
+                        student_details[idx]['last_name'] = profile.last_name
+                        student_details[idx]['email'] = profile.primary_email
+
+                elif primary_email:
+                    data = {
+                        'first_name': student.get('first_name', None),
+                        'last_name': student.get('last_name', None)
+                    }
+                    try:
+                        profile, created = Profile.objects.update_or_create(
+                            primary_email=primary_email,
+                            defaults=data
+                        )
+                    except Exception as e:
+                        pass
+                    else:
+                        try:
+                            profile_store = ProfileStore.objects.get_or_create(profile=profile, store=store)
+                        except Exception as e:
+                            pass
+
+        agreement_details = request.data.get('agreement_details', {})
+        if agreement_details:
+            agreement_details = json.loads(agreement_details)
+
+        registration_details = request.data.get('registration_details', {})
+        if registration_details:
+            registration_details = json.loads(registration_details)
+
+        coupon_codes = request.data.get('coupon_codes', [])
+        if coupon_codes:
+            coupon_codes = json.loads(coupon_codes)
+
+        cart_details = request.data.get('cart_details', [])
+        if cart_details:
+            cart_details = json.loads(cart_details)
+
+        data['files'] = files
+        data['token_id'] = token_id
+        data['student_details'] = student_details
+        data['agreement_details'] = agreement_details
+        data['registration_details'] = registration_details
+        data['purchaser_info'] = purchaser_info
+        data['store_slug'] = store.url_slug
+        data['store_payment_gateway_id'] = store_payment_gateway_id
+        data['payment_ref'] = payment_ref
+        data['payment_note'] = payment_note
+        data['coupon_codes'] = coupon_codes
+        data['zip_code'] = zip_code
+        data['country'] = country
+        data['nonce'] = nonce
+        data['cart_details'] = cart_details
+        data['admin'] = True
+        data['seat_reservation_id'] = seat_reservation_id
+
+        return True, 'okay', data
