@@ -8,7 +8,7 @@ from shared_models.models import Store, CourseProvider
 from django.contrib.auth.models import update_last_login
 from rest_framework_simplejwt.settings import api_settings
 
-from shared_models.models import Permission, CustomRole
+from shared_models.models import Permission, CustomRole, StoreCompany
 from app.serializers import CustomRoleSerializer, PermissionSerializer
 
 
@@ -43,7 +43,7 @@ class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
         data['role'] = {}
         data['permissions'] = {}
         data['menu_permissions'] = {}
-        data['context'] = {}
+        data['context'] = []
         data['mfa_enabled'] = self.user.mfa_enabled
 
         custom_roles = CustomRole.objects.filter(id__in=self.user.custom_roles)
@@ -63,7 +63,6 @@ class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
         data['preferences'] = self.user.preference
 
         if self.user.db_context:
-            context = {}
             if 'Store' in self.user.db_context.keys() and len(self.user.db_context['Store']):
                 context = {
                     'type': 'Store',
@@ -76,10 +75,19 @@ class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
                     except Store.DoesNotExist:
                         pass
                     else:
+                        if s.primary_course_provider:
+                            primary_course_provider = {
+                                "id": str(s.primary_course_provider.id),
+                                "name": s.primary_course_provider.name
+                            }
+                        else:
+                            primary_course_provider = None
                         context['values'].append({
-                            "id": s.id,
-                            "name": s.name
+                            "id": str(s.id),
+                            "name": s.name,
+                            "primary_course_provider": primary_course_provider
                         })
+                data['context'].append(context)
 
             if 'CourseProvider' in self.user.db_context.keys() and len(self.user.db_context['CourseProvider']):
                 context = {
@@ -95,11 +103,30 @@ class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
                         pass
                     else:
                         context['values'].append({
-                            'id': c.id,
+                            'id': str(c.id),
                             'name': c.name
                         })
+                data['context'].append(context)
 
-            data['context'] = context
+            if 'Company' in self.user.db_context.keys() and len(self.user.db_context['Company']):
+                context = {
+                    'type': 'Company',
+                    'values': []
+                }
+
+                companies = self.user.db_context['Company']
+                for cp in companies:
+                    try:
+                        c = StoreCompany.objects.get(pk=cp)
+                    except CourseProvider.DoesNotExist:
+                        pass
+                    else:
+                        context['values'].append({
+                            'id': str(c.id),
+                            'name': c.company_name,
+                            'store': str(c.store.id)
+                        })
+                data['context'].append(context)
 
         if api_settings.UPDATE_LAST_LOGIN:
             update_last_login(None, self.user)
