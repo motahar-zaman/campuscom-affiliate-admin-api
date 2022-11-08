@@ -94,7 +94,7 @@ class CreateBulkEnrollmentView(APIView, SharedMixin, ViewDataMixin):
         student_details = request.data.get('student_details', [])
         if student_details:
             student_details = json.loads(student_details)
-            for student in enumerate(student_details):
+            for student in student_details:
                 primary_email = student.get('email', None)
                 data = {
                     'first_name': student.get('first_name', None),
