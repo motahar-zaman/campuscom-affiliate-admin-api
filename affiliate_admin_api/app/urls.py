@@ -11,7 +11,7 @@ from app.views import (PaymentSummaryView, CreateEnrollmentView, EnrollmentProdu
                        health_check, CourseEnrollmentViewSet, StudentViewSet, RemoveEnrollmentView, SwapEnrollmentView,
                        SeatBlockReservationViewSet, SeatReservationViewSet, SeatReservationHistoryView,
                        SeatReservationTokenGenerationView, RemoveSeatRegistrationView, SwapSeatRegistrationView,
-                       StoreCompanyViewSet)
+                       StoreCompanyViewSet, CreateBulkEnrollmentView)
 
 router = routers.DefaultRouter()
 
@@ -42,6 +42,7 @@ urlpatterns = [
     # bulk enrollment by affiliate-admin from affiliate admin panel
     path('payment-summary/', PaymentSummaryView.as_view(), name='payment_summary'),
     path('create-enrollment/', CreateEnrollmentView.as_view(), name='create_enrollment'),
+    path('create-bulk-enrollment/', CreateBulkEnrollmentView.as_view(), name='create_bulk_enrollment'),
     path('create-enrollment-with-purchaser/', CreateEnrollmentWithPurchaserView.as_view(), name='create_enrollment_with_purchaser'),
     path('enrollment-product-details/', EnrollmentProductDetailsView.as_view(), name='enrollment_product_details'),
 
