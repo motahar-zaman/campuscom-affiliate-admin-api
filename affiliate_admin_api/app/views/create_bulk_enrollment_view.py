@@ -128,7 +128,6 @@ class CreateBulkEnrollmentView(APIView, SharedMixin, ViewDataMixin):
         data['country'] = country
         data['nonce'] = nonce
         data['cart_details'] = cart_details
-        data['admin'] = True
         data['seat_reservation_id'] = seat_reservation_id
 
         return True, 'okay', data
