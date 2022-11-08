@@ -17,9 +17,11 @@ class CreateBulkEnrollmentView(APIView, SharedMixin, ViewDataMixin):
         enroll = Common()
 
         # special cases: (why not use shared_lib's common method)
-        # 1. students will be mixed (profile id and first_name, last_name, email)
-        # 2. organization data will not provide as purchasing for
-        status, message, data = enroll.validate_and_format_enrollment_payload(request)
+        # 1. organization data will not provide as purchasing_for in purchaser_info, it will always be company and the
+        # company will be from user context
+        # 2. purchaser will be logged-in user or in purchaser_info
+
+        status, message, data = self.validate_and_format_enrollment_payload(request)
         if not status:
             return Response({'message': message}, status=HTTP_400_BAD_REQUEST)
 
@@ -48,56 +50,10 @@ class CreateBulkEnrollmentView(APIView, SharedMixin, ViewDataMixin):
         zip_code = request.data.get('zip_code', None)
         country = request.data.get('country', None)
         nonce = request.data.get('nonce', None)
-        store_id = request.data.get('store', None)
         payment_ref = request.data.get('payment_ref', None)
         payment_note = request.data.get('payment_note', None)
         store_payment_gateway_id = request.data.get('store_payment_gateway_id', None)
         seat_reservation_id = request.data.get('seat_reservation', None)
-
-        try:
-            store = Store.objects.get(pk=store_id)
-        except Store.DoesNotExist:
-            return False, 'Store does not exist', data
-
-        purchaser_info = {
-            'first_name': request.user.first_name,
-            'last_name': request.user.last_name,
-            'primary_email': request.user.email
-        }
-
-        student_details = request.data.get('student_details', [])
-        if student_details:
-            student_details = json.loads(student_details)
-            for idx, student in enumerate(student_details):
-                profile_id = student.get('profile_id', None)
-                primary_email = student.get('email', None)
-                if profile_id:
-                    try:
-                        profile = Profile.objects.get(pk=profile_id)
-                    except Profile.DoesNotExist:
-                        return False, 'Student with this profile id not found', data
-                    else:
-                        student_details[idx]['first_name'] = profile.first_name
-                        student_details[idx]['last_name'] = profile.last_name
-                        student_details[idx]['email'] = profile.primary_email
-
-                elif primary_email:
-                    data = {
-                        'first_name': student.get('first_name', None),
-                        'last_name': student.get('last_name', None)
-                    }
-                    try:
-                        profile, created = Profile.objects.update_or_create(
-                            primary_email=primary_email,
-                            defaults=data
-                        )
-                    except Exception as e:
-                        pass
-                    else:
-                        try:
-                            profile_store = ProfileStore.objects.get_or_create(profile=profile, store=store)
-                        except Exception as e:
-                            pass
 
         agreement_details = request.data.get('agreement_details', {})
         if agreement_details:
@@ -114,6 +70,48 @@ class CreateBulkEnrollmentView(APIView, SharedMixin, ViewDataMixin):
         cart_details = request.data.get('cart_details', [])
         if cart_details:
             cart_details = json.loads(cart_details)
+
+        purchaser_info = request.data.get('purchaser_info', {})
+        if purchaser_info:
+            purchaser_info = json.loads(purchaser_info)
+
+        if not purchaser_info or not purchaser_info.get('primary_email', None):
+            purchaser_info['first_name'] = request.user.first_name
+            purchaser_info['last_name'] = request.user.last_name
+            purchaser_info['primary_email'] = request.user.email
+
+        purchaser_info['purchasing_for'] = {
+            'type': 'company',
+            'ref': request.user.db_context['Company'][0] if request.user.db_context['Company'] else None
+        }
+
+        store_id = request.data.get('store', None)
+        try:
+            store = Store.objects.get(pk=store_id)
+        except Store.DoesNotExist:
+            return False, 'Store does not exist', data
+
+        student_details = request.data.get('student_details', [])
+        if student_details:
+            student_details = json.loads(student_details)
+            for student in enumerate(student_details):
+                primary_email = student.get('email', None)
+                data = {
+                    'first_name': student.get('first_name', None),
+                    'last_name': student.get('last_name', None)
+                }
+                try:
+                    profile, created = Profile.objects.update_or_create(
+                        primary_email=primary_email,
+                        defaults=data
+                    )
+                except Exception as e:
+                    pass
+                else:
+                    try:
+                        profile_store = ProfileStore.objects.get_or_create(profile=profile, store=store)
+                    except Exception as e:
+                        pass
 
         data['files'] = files
         data['token_id'] = token_id
