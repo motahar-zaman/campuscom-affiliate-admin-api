@@ -22,7 +22,6 @@ class CreateBulkEnrollmentView(APIView, SharedMixin, ViewDataMixin):
         # 2. purchaser will be logged-in user or in purchaser_info
 
         status, message, data = self.validate_and_format_enrollment_payload(request)
-        return Response("success", status=HTTP_200_OK)
         if not status:
             return Response({'message': message}, status=HTTP_400_BAD_REQUEST)
 
