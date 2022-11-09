@@ -82,7 +82,7 @@ class CreateBulkEnrollmentView(APIView, SharedMixin, ViewDataMixin):
 
         purchaser_info['purchasing_for'] = {
             'type': 'company',
-            'ref': request.user.db_context['Company'][0] if request.user.db_context['Company'] else None
+            'ref': request.user.db_context.get('Company', None)
         }
 
         store_id = request.data.get('store', None)
