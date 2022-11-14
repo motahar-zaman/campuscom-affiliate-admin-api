@@ -16,12 +16,12 @@ class CreateBulkEnrollmentView(APIView, SharedMixin, ViewDataMixin):
     def post(self, request, *args, **kwargs):
         enroll = Common()
 
-        # special cases: (why not use shared_lib's common method)
+        # special cases:
         # 1. organization data will not provide as purchasing_for in purchaser_info, it will always be company and the
         # company will be from user context
         # 2. purchaser will be logged-in user or in purchaser_info
 
-        status, message, data = self.validate_and_format_enrollment_payload(request)
+        status, message, data = enroll.validate_and_format_bulk_enrollment_payload(request)
         if not status:
             return Response({'message': message}, status=HTTP_400_BAD_REQUEST)
 
