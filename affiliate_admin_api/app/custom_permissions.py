@@ -1,24 +1,6 @@
 from rest_framework import permissions
 from shared_models.models import Permission, CustomRole
 
-from .permissions_config import role_based_permissions
-
-
-def expand_permissions(configs):
-    config_dict = {}
-    for item in configs:
-        if isinstance(item, dict):
-            config_dict = {**config_dict, **item}
-        else:
-            try:
-                configs = role_based_permissions[item]
-            except KeyError:
-                pass
-            else:
-                permission_config = expand_permissions(configs)
-                config_dict = {**config_dict, **permission_config}
-    return config_dict
-
 
 class HasRoleBasedPermission(permissions.BasePermission):
     """
